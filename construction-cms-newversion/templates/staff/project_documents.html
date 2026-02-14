@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.project_name }} - My Documents{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ project.project_name }}</h1>
+        <p class="subtitle">Site: {{ project.site_name }}</p>
+    </div>
+    <div>
+        <a href="{{ url_for('staff_upload_document', project_id=project.id) }}" class="btn btn-primary">+ Upload Document</a>
+        <a href="{{ url_for('staff_projects') }}" class="btn btn-secondary">← Back to Projects</a>
+    </div>
+</div>
+
+<div class="table-container">
+    {% if documents %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Report Date</th>
+                    <th>Uploaded</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td><span class="badge badge-{{ doc.document_type.lower() }}">{{ doc.document_type }}</span></td>
+                    <td><strong>{{ doc.title }}</strong></td>
+                    <td>{{ doc.description[:40] + '...' if doc.description and doc.description|length > 40 else doc.description or 'N/A' }}</td>
+                    <td>{{ doc.report_date.strftime('%Y-%m-%d') if doc.report_date else 'N/A' }}</td>
+                    <td>{{ doc.upload_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('download_file', filename=doc.file_path) }}" class="btn btn-sm btn-info" target="_blank">Download</a>
+                        <form method="POST" action="{{ url_for('staff_delete_document', doc_id=doc.id) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this document?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <p>No documents uploaded yet.</p>
+            <a href="{{ url_for('staff_upload_document', project_id=project.id) }}" class="btn btn-primary">+ Upload First Document</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

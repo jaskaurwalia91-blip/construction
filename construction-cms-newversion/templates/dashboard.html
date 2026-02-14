@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Construction CMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Welcome, {{ session.full_name }}!</p>
+</div>
+
+<div class="stats-grid">
+    {% if session.role == 'admin' %}
+        <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-info">
+                <h3>{{ stats.sites }}</h3>
+                <p>Active Sites</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📁</div>
+            <div class="stat-info">
+                <h3>{{ stats.projects }}</h3>
+                <p>Total Projects</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+                <h3>{{ stats.staff }}</h3>
+                <p>Staff Members</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-info">
+                <h3>{{ stats.documents }}</h3>
+                <p>Documents</p>
+            </div>
+        </div>
+    {% elif session.role == 'staff' %}
+        <div class="stat-card">
+            <div class="stat-icon">📁</div>
+            <div class="stat-info">
+                <h3>{{ stats.projects }}</h3>
+                <p>Assigned Projects</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-info">
+                <h3>{{ stats.documents }}</h3>
+                <p>My Documents</p>
+            </div>
+        </div>
+    {% else %}
+        <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-info">
+                <h3>{{ stats.sites }}</h3>
+                <p>Available Sites</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📁</div>
+            <div class="stat-info">
+                <h3>{{ stats.projects }}</h3>
+                <p>Total Projects</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="action-buttons">
+        {% if session.role == 'admin' %}
+            <a href="{{ url_for('add_site') }}" class="btn btn-primary">+ Add New Site</a>
+            <a href="{{ url_for('add_staff') }}" class="btn btn-success">+ Add Staff Member</a>
+            <a href="{{ url_for('add_user') }}" class="btn btn-info">+ Add User</a>
+            <a href="{{ url_for('admin_all_documents') }}" class="btn btn-secondary">📄 View All Documents</a>
+        {% elif session.role == 'staff' %}
+            <a href="{{ url_for('staff_projects') }}" class="btn btn-primary">View My Projects</a>
+        {% else %}
+            <a href="{{ url_for('user_sites') }}" class="btn btn-primary">Browse Sites</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

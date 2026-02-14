@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.project_name }} - Documents{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ project.project_name }}</h1>
+        <p class="subtitle">Site: {{ project.site_name }}</p>
+    </div>
+    <a href="{{ url_for('user_site_projects', site_id=project.site_id) }}" class="btn btn-secondary">← Back to Projects</a>
+</div>
+
+<div class="documents-section">
+    <!-- Daily Progress Reports -->
+    <div class="doc-category">
+        <h2>📊 Daily Progress Reports (DPR)</h2>
+        {% if docs_by_type['DPR'] %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Report Date</th>
+                    <th>Uploaded By</th>
+                    <th>Uploaded On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in docs_by_type['DPR'] %}
+                <tr>
+                    <td><strong>{{ doc.title }}</strong></td>
+                    <td>{{ doc.report_date.strftime('%Y-%m-%d') if doc.report_date else 'N/A' }}</td>
+                    <td>{{ doc.uploaded_by_name }}</td>
+                    <td>{{ doc.upload_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('download_file', filename=doc.file_path) }}" class="btn btn-sm btn-info" target="_blank">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-docs">No DPR reports available</p>
+        {% endif %}
+    </div>
+
+    <!-- Minutes of Meeting -->
+    <div class="doc-category">
+        <h2>📝 Minutes of Meeting (MOM)</h2>
+        {% if docs_by_type['MOM'] %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Meeting Date</th>
+                    <th>Uploaded By</th>
+                    <th>Uploaded On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in docs_by_type['MOM'] %}
+                <tr>
+                    <td><strong>{{ doc.title }}</strong></td>
+                    <td>{{ doc.report_date.strftime('%Y-%m-%d') if doc.report_date else 'N/A' }}</td>
+                    <td>{{ doc.uploaded_by_name }}</td>
+                    <td>{{ doc.upload_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('download_file', filename=doc.file_path) }}" class="btn btn-sm btn-info" target="_blank">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-docs">No MOM available</p>
+        {% endif %}
+    </div>
+
+    <!-- Weekly Progress Reports -->
+    <div class="doc-category">
+        <h2>📈 Weekly Progress Reports (WPR)</h2>
+        {% if docs_by_type['WPR'] %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Week Ending</th>
+                    <th>Uploaded By</th>
+                    <th>Uploaded On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in docs_by_type['WPR'] %}
+                <tr>
+                    <td><strong>{{ doc.title }}</strong></td>
+                    <td>{{ doc.report_date.strftime('%Y-%m-%d') if doc.report_date else 'N/A' }}</td>
+                    <td>{{ doc.uploaded_by_name }}</td>
+                    <td>{{ doc.upload_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('download_file', filename=doc.file_path) }}" class="btn btn-sm btn-info" target="_blank">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-docs">No WPR available</p>
+        {% endif %}
+    </div>
+
+    <!-- Site Photos -->
+    <div class="doc-category">
+        <h2>📷 Site Photos</h2>
+        {% if docs_by_type['PHOTO'] %}
+        <div class="photo-grid">
+            {% for doc in docs_by_type['PHOTO'] %}
+            <div class="photo-card">
+                <div class="photo-header">
+                    <strong>{{ doc.title }}</strong>
+                </div>
+                <div class="photo-info">
+                    <p>Date: {{ doc.report_date.strftime('%Y-%m-%d') if doc.report_date else 'N/A' }}</p>
+                    <p>By: {{ doc.uploaded_by_name }}</p>
+                </div>
+                <a href="{{ url_for('download_file', filename=doc.file_path) }}" class="btn btn-sm btn-info btn-block" target="_blank">View Photo</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="no-docs">No site photos available</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

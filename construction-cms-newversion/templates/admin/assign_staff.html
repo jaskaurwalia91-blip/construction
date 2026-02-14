@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Assign Staff - {{ project.project_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Assign Staff to Project</h1>
+    <p class="subtitle">{{ project.project_name }}</p>
+</div>
+
+<div class="form-container">
+    <form method="POST" action="{{ url_for('assign_staff', project_id=project.id, site_id=request.args.get('site_id')) }}" class="standard-form">
+        <div class="form-group">
+            <label>Select Staff Members to Assign</label>
+            <div class="checkbox-list">
+                {% for staff in staff_list %}
+                <div class="checkbox-item">
+                    <input type="checkbox" 
+                           id="staff_{{ staff.id }}" 
+                           name="staff_ids" 
+                           value="{{ staff.id }}"
+                           {% if staff.id in assigned_staff %}checked{% endif %}>
+                    <label for="staff_{{ staff.id }}">
+                        {{ staff.full_name }} ({{ staff.username }})
+                        {% if staff.id in assigned_staff %}
+                            <span class="badge badge-success">Currently Assigned</span>
+                        {% endif %}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update Assignments</button>
+            <a href="{{ url_for('admin_site_projects', site_id=request.args.get('site_id')) }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

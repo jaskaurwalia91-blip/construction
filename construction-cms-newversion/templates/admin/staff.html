@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Management - Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Staff Management</h1>
+    <div>
+        <a href="{{ url_for('add_staff') }}" class="btn btn-primary">+ Add Staff</a>
+        <a href="{{ url_for('add_user') }}" class="btn btn-success">+ Add User</a>
+    </div>
+</div>
+
+<div class="table-container">
+    {% if staff_list %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for staff in staff_list %}
+                <tr>
+                    <td><strong>{{ staff.username }}</strong></td>
+                    <td>{{ staff.full_name }}</td>
+                    <td><span class="badge badge-{{ staff.role }}">{{ staff.role|upper }}</span></td>
+                    <td>
+                        {% if staff.is_active %}
+                            <span class="status-active">Active</span>
+                        {% else %}
+                            <span class="status-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ staff.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <p>No staff members found.</p>
+            <a href="{{ url_for('add_staff') }}" class="btn btn-primary">+ Add Staff Member</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

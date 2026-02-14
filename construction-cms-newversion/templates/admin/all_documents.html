@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}All Documents - Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📄 All Documents</h1>
+    <a href="{{ url_for('admin_sites') }}" class="btn btn-secondary">← Back to Sites</a>
+</div>
+
+<div class="filter-section">
+    <form method="GET" class="filter-form">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label for="doc_type">Document Type</label>
+                <select name="doc_type" id="doc_type">
+                    <option value="">All Types</option>
+                    <option value="DPR" {% if request.args.get('doc_type') == 'DPR' %}selected{% endif %}>DPR - Daily Progress Report</option>
+                    <option value="MOM" {% if request.args.get('doc_type') == 'MOM' %}selected{% endif %}>MOM - Minutes of Meeting</option>
+                    <option value="WPR" {% if request.args.get('doc_type') == 'WPR' %}selected{% endif %}>WPR - Weekly Progress Report</option>
+                    <option value="PHOTO" {% if request.args.get('doc_type') == 'PHOTO' %}selected{% endif %}>Photos - Site Photos</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="site_id">Filter by Site</label>
+                <select name="site_id" id="site_id">
+                    <option value="">All Sites</option>
+                    {% for site in sites %}
+                    <option value="{{ site.id }}" {% if request.args.get('site_id') == site.id|string %}selected{% endif %}>
+                        {{ site.site_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Apply Filter</button>
+                <a href="{{ url_for('admin_all_documents') }}" class="btn btn-secondary">Clear All</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="table-container">
+    {% if documents %}
+        <div class="table-header">
+            <h3>Found {{ documents|length }} document(s)</h3>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Site</th>
+                    <th>Project</th>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Report Date</th>
+                    <th>Uploaded By</th>
+                    <th>Upload Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td><span class="site-badge">{{ doc.site_name }}</span></td>
+                    <td><strong>{{ doc.project_name }}</strong></td>
+                    <td><span class="badge badge-{{ doc.document_type.lower() }}">{{ doc.document_type }}</span></td>
+                    <td>{{ doc.title }}</td>
+                    <td>{{ doc.report_date.strftime('%d %b %Y') if doc.report_date else 'N/A' }}</td>
+                    <td>{{ doc.uploaded_by_name }}</td>
+                    <td>{{ doc.upload_date.strftime('%d %b %Y, %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('download_file', filename=doc.file_path) }}" class="btn btn-sm btn-info" target="_blank">📥 Download</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📂</div>
+            <h3>No Documents Found</h3>
+            <p>{% if request.args.get('doc_type') or request.args.get('site_id') %}
+                Try changing your filter settings or clearing all filters.
+            {% else %}
+                No documents have been uploaded yet. Staff members can upload documents to their assigned projects.
+            {% endif %}</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.filter-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.filter-form {
+    width: 100%;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.table-header {
+    padding: 1rem 1.5rem;
+    background: var(--light);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.table-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.125rem;
+}
+
+.site-badge {
+    display: inline-block;
+    background: #f3f4f6;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+    }
+    
+    .data-table {
+        font-size: 0.75rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem 0.25rem;
+    }
+}
+</style>
+{% endblock %}

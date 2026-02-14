@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Sites Management - Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Sites Management</h1>
+    <a href="{{ url_for('add_site') }}" class="btn btn-primary">+ Add New Site</a>
+</div>
+
+<div class="table-container">
+    {% if sites %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Site Name</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Created By</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for site in sites %}
+                <tr>
+                    <td><strong>{{ site.site_name }}</strong></td>
+                    <td>{{ site.location or 'N/A' }}</td>
+                    <td>{{ site.description[:50] + '...' if site.description and site.description|length > 50 else site.description or 'N/A' }}</td>
+                    <td>{{ site.created_by_name }}</td>
+                    <td>{{ site.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_site_projects', site_id=site.id) }}" class="btn btn-sm btn-info">View Projects</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <p>No sites found. Create your first site!</p>
+            <a href="{{ url_for('add_site') }}" class="btn btn-primary">+ Add Site</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

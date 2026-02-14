@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Add Staff Member - Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Add Staff Member</h1>
+    <a href="{{ url_for('admin_staff') }}" class="btn btn-secondary">← Back</a>
+</div>
+
+<div class="form-container">
+    <form method="POST" action="{{ url_for('add_staff') }}" class="standard-form">
+        <div class="form-group">
+            <label for="username">Username *</label>
+            <input type="text" id="username" name="username" required>
+            <small>Used for login</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required minlength="6">
+            <small>Minimum 6 characters</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="full_name">Full Name *</label>
+            <input type="text" id="full_name" name="full_name" required>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Staff Account</button>
+            <a href="{{ url_for('admin_staff') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

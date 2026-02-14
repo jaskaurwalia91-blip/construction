@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Construction Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% if session.user_id %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>🏗️ Construction CMS</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                
+                {% if session.role == 'admin' %}
+                    <a href="{{ url_for('admin_sites') }}" class="nav-link">Sites</a>
+                    <a href="{{ url_for('admin_all_documents') }}" class="nav-link">All Documents</a>
+                    <a href="{{ url_for('admin_staff') }}" class="nav-link">Staff Management</a>
+                {% elif session.role == 'staff' %}
+                    <a href="{{ url_for('staff_projects') }}" class="nav-link">My Projects</a>
+                {% elif session.role == 'user' %}
+                    <a href="{{ url_for('user_sites') }}" class="nav-link">View Sites</a>
+                {% endif %}
+                
+                <div class="nav-user">
+                    <span class="user-name">{{ session.full_name }}</span>
+                    <span class="user-role">({{ session.role|upper }})</span>
+                    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                        <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site.site_name }} - Projects{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ site.site_name }}</h1>
+        <p class="subtitle">{{ site.location }}</p>
+    </div>
+    <div>
+        <a href="{{ url_for('add_project', site_id=site.id) }}" class="btn btn-primary">+ Add Project</a>
+        <a href="{{ url_for('admin_sites') }}" class="btn btn-secondary">← Back to Sites</a>
+    </div>
+</div>
+
+<div class="table-container">
+    {% if projects %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Description</th>
+                    <th>Start Date</th>
+                    <th>Created By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td><strong>{{ project.project_name }}</strong></td>
+                    <td>{{ project.description[:50] + '...' if project.description and project.description|length > 50 else project.description or 'N/A' }}</td>
+                    <td>{{ project.start_date.strftime('%Y-%m-%d') if project.start_date else 'N/A' }}</td>
+                    <td>{{ project.created_by_name }}</td>
+                    <td>
+                        <a href="{{ url_for('assign_staff', project_id=project.id, site_id=site.id) }}" class="btn btn-sm btn-success">Assign Staff</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <p>No projects in this site yet.</p>
+            <a href="{{ url_for('add_project', site_id=site.id) }}" class="btn btn-primary">+ Add Project</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}My Projects - Staff{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Assigned Projects</h1>
+</div>
+
+<div class="table-container">
+    {% if projects %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Site</th>
+                    <th>Description</th>
+                    <th>Start Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td><strong>{{ project.project_name }}</strong></td>
+                    <td>{{ project.site_name }}</td>
+                    <td>{{ project.description[:50] + '...' if project.description and project.description|length > 50 else project.description or 'N/A' }}</td>
+                    <td>{{ project.start_date.strftime('%Y-%m-%d') if project.start_date else 'N/A' }}</td>
+                    <td>
+                        <a href="{{ url_for('staff_project_documents', project_id=project.id) }}" class="btn btn-sm btn-info">View Documents</a>
+                        <a href="{{ url_for('staff_upload_document', project_id=project.id) }}" class="btn btn-sm btn-success">Upload</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <p>You are not assigned to any projects yet.</p>
+            <p>Contact your administrator for project assignments.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
