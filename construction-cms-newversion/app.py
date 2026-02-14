@@ -7,18 +7,22 @@ from psycopg2.extras import RealDictCursor
 import os
 from datetime import datetime
 import secrets
+import tempfile
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
+# Fix for Render deployment - use temp directory for file uploads
+UPLOAD_FOLDER = os.path.join(tempfile.gettempdir(), 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx', 'xls', 'xlsx'}
-#DATABASE_URL = 'postgresql://neondb_owner:npg_5h0nTNEfpOLH@ep-soft-credit-aimmm2c4.us-east-1.aws.neon.tech/neondb?sslmode=require'
 
 # Database Configuration (NeonDB)
-# Use direct connection for better performance (remove -pooler from hostname)
-#DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://neondb_owner:npg_5h0nTNEfpOLH@ep-soft-credit-aimmm2c4.us-east-1.aws.neon.tech/neondb?sslmode=require')
-DATABASE_URL = 'postgresql://neondb_owner:npg_5h0nTNEfpOLH@ep-soft-credit-aimmm2c4.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require'
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://neondb_owner:npg_5h0nTNEfpOLH@ep-soft-credit-aimmm2c4.us-east-1.aws.neon.tech/neondb?sslmode=require')
+
 def get_db():
     """Get database connection"""
     conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
@@ -340,7 +344,7 @@ def add_project(site_id):
 def admin_staff():
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE role = 'staff' ORDER BY created_at DESC")
+    cur.execute("SELECT * FROM users WHERE role IN ('staff', 'user') ORDER BY created_at DESC")
     staff_list = cur.fetchall()
     cur.close()
     conn.close()
@@ -572,21 +576,25 @@ def staff_upload_document(project_id):
             filename = f"{timestamp}_{filename}"
             
             upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(upload_path)
             
-            conn = get_db()
-            cur = conn.cursor()
-            cur.execute(
-                """INSERT INTO documents (project_id, document_type, title, file_path, uploaded_by, description, report_date) 
-                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                (project_id, document_type, title, filename, session['user_id'], description, report_date)
-            )
-            conn.commit()
-            cur.close()
-            conn.close()
-            
-            flash('Document uploaded successfully', 'success')
-            return redirect(url_for('staff_project_documents', project_id=project_id))
+            try:
+                file.save(upload_path)
+                
+                conn = get_db()
+                cur = conn.cursor()
+                cur.execute(
+                    """INSERT INTO documents (project_id, document_type, title, file_path, uploaded_by, description, report_date) 
+                       VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                    (project_id, document_type, title, filename, session['user_id'], description, report_date)
+                )
+                conn.commit()
+                cur.close()
+                conn.close()
+                
+                flash('Document uploaded successfully', 'success')
+                return redirect(url_for('staff_project_documents', project_id=project_id))
+            except Exception as e:
+                flash(f'Error uploading file: {str(e)}', 'error')
         else:
             flash('Invalid file type', 'error')
     
@@ -612,7 +620,10 @@ def staff_delete_document(doc_id):
         # Delete file
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], document['file_path'])
         if os.path.exists(file_path):
-            os.remove(file_path)
+            try:
+                os.remove(file_path)
+            except:
+                pass
         
         cur.execute("DELETE FROM documents WHERE id = %s", (doc_id,))
         conn.commit()
